@@ -2,22 +2,22 @@
 
 ##How to set up
 
--go to the directory where you want to copy this project and type
+go to the directory where you want to copy this project and type
 
-git pull git@github.com:nawafuji/PBSexercise.git
+`git pull git@github.com:nawafuji/PBSexercise.git`
 
--go to each exercise directory
+go to each exercise directory
 
-cd Ex~
+`cd Ex~`
 
--create a build directory
+create a build directory
 
-mkdir build
+`mkdir build`
 
 ##How to build
 
-cd Ex~
+`cd Ex~`
 
-make
+`make`
 
--all the compiled files are put in the build directory
+all the compiled files are put in the build directory
