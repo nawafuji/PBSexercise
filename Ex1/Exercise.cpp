@@ -1,5 +1,6 @@
 #include "Vec2.h"
-
+#include <cmath>
+using namespace std;
 // gravitational acceleration (9.81)
 static const double g = 9.81;
 
