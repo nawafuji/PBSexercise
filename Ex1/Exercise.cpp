@@ -10,26 +10,34 @@ static const double g = 9.81;
 void AdvanceTimeStep1(double k, double m, double d, double L, double dt, int method, double p1, double v1, double& p2, double& v2)
 {
   double F=0.,k1=0.,k2=0.,l1=0.;
+    F=-k*(abs(p2-p1)-L)*(p2-p1)/abs(p2-p1);
+    
     //Euler
     if (method==1)
     {
-        
-        F=-k*(abs(p2-p1)-L)*(p2-p1)/abs(p2-p1);        //not sure if this is correct
         p2 = p2+dt*v2;
         v2= v2+ dt*(F-m*g-v2*d)/m;
-       
         
+    }else if(method==2)     //symplectic euler
+    {
         
-    }else if(method==3) //midpoint
+        v2=v2+ dt*(F-m*g -v2*d)/m;
+        p2= p2 +v2*dt;
+    }
+    else if(method==3) //midpoint
     {
         k1=v2;
-        F=-k*(abs(p2-p1)-L)*(p2-p1)/abs(p2-p1);     //not sure if this is correct
+        
         l1=(F-m*g-v2*d)/m;
         k2=v2+dt*l1;
         
         p2=p2+dt/2*(k1+k2);
         
         v2=v2+dt/2*(l1+(-k*(p2+v2*dt)-d*k2)/m);
+    }else if (method==4)        //semi-implicit Euler
+    {
+        v2= ((m-dt*(-d))*v2 +(F-m*g-v2*d)*dt)/(m-dt*(-d)-dt*dt*(-k));
+        p2=p2+dt*v2;
     }
 }
 
