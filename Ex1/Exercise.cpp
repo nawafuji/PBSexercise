@@ -38,6 +38,14 @@ void AdvanceTimeStep1(double k, double m, double d, double L, double dt, int met
     {
         v2= ((m-dt*(-d))*v2 +(F-m*g-v2*d)*dt)/(m-dt*(-d)-dt*dt*(-k));
         p2=p2+dt*v2;
+    }else if(method==5)		//analytic
+    {
+        double a=-d/2*m,b=sqrt(4*k*m-d*d)/(2*m);
+        double c1=m*g/k,c2=-a/b*c1;
+        
+        double p2_0=p2;
+        p2=c1*exp(a*dt)*cos(b*dt)+c2*exp(a*dt)*sin(b*dt)-L-m*g/k;
+        v2=c1*exp(a*dt)*(a*cos(b*dt)-sin(b*dt)*b)+c2*exp(a*dt)*(a*sin(b*dt)+cos(b*dt)*b);
     }
 }
 
