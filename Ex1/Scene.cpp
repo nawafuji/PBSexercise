@@ -6,6 +6,7 @@
 #include <cstring>
 
 #include <iostream>
+#include <fstream>
 using namespace std;
 
 double Scene::step=0.01f;
@@ -45,7 +46,7 @@ Scene::Scene(int argc, char* argv[])
 	method    = LEAP_FROG;
 	stiffness = 10.0;
 	mass      = 0.1f;
-	step      = 0.003f;
+	step      = 0.01f;
 	damping   = 0.01f;
 
    int arg=1;
@@ -209,12 +210,16 @@ void Scene::Init(void)
 
 void Scene::timeStepReductionLoop(double stiffness,double mass,double damping,double L,double step, int numofIterations)
 {
+  std::ofstream ofs;
+	ofs.open( "result2.txt" );
+
 	double currstep = step;
 	
 	cout << "velocity change table:" << endl;	
 	cout << "step ";
-	for (int m = 1; m <= 5; m++ )
+	for (int m = 1; m <= 5; m++ ){
 		cout << methodNames[m] << " ";
+  }
 	cout << endl;
 	double startT = 0.1;
 	double startPos = -L,startV = 0;
@@ -222,6 +227,7 @@ void Scene::timeStepReductionLoop(double stiffness,double mass,double damping,do
 	for (int i = 0; i < numofIterations; i++)
 	{
 		printf("%.5lf ",currstep);
+    ofs << currstep << " ";
 		for (int m = 1; m <= 5; m++ )
 		{
 			double p2y = startPos,v2y = startV;
@@ -230,8 +236,10 @@ void Scene::timeStepReductionLoop(double stiffness,double mass,double damping,do
 			else
 				AdvanceTimeStep1(stiffness, mass, damping, L, startT+currstep, m, 0, 0, p2y, v2y);
 			printf("%.5e ",v2y-startV);
+      ofs << v2y-startV << " ";
 		}
 		cout << endl;
+		ofs << endl;
 		currstep/=2.0;
 	}
 	cout << "displacement table:" << endl;	
@@ -255,10 +263,13 @@ void Scene::timeStepReductionLoop(double stiffness,double mass,double damping,do
 		cout << endl;
 		currstep/=2.0;
 	}
+	ofs.close();
 }
 
 void Scene::stabilityLoop(double stiffness,double mass,double damping,double L,double step,double endTime, int numofIterations)
 {
+  std::ofstream ofs;
+	ofs.open( "result3.txt" );
 	double currstep = step;
 	//damping = 0;
 	cout << "Max amplitude table:" << endl;	
@@ -270,6 +281,7 @@ void Scene::stabilityLoop(double stiffness,double mass,double damping,double L,d
 	{
 		int numofSteps = (int)(endTime/step);
 		cout << currstep << " ";
+		ofs << currstep << " ";
 		for (int m = 1; m <= 5; m++ )
 		{
 			double p2y = -L,v2y = 0;
@@ -281,10 +293,13 @@ void Scene::stabilityLoop(double stiffness,double mass,double damping,double L,d
 					maxAmp = abs(p2y-L);
 			}
 			cout << maxAmp << " ";
+			ofs << maxAmp << " ";
 		}
 		cout << endl;
+    ofs << endl;
 		currstep*=2.0;
 	}
+  ofs.close();
 }
 
 void Scene::Update(void)
