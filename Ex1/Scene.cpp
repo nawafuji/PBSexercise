@@ -46,8 +46,8 @@ Scene::Scene(int argc, char* argv[])
 	method    = LEAP_FROG;
 	stiffness = 10.0;
 	mass      = 0.1f;
-	step      = 0.01f;
-	damping   = 0.01f;
+	step      = 0.001f;
+	damping   = 0.5f;
 
    int arg=1;
    while(arg<argc)
@@ -251,6 +251,7 @@ void Scene::timeStepReductionLoop(double stiffness,double mass,double damping,do
 	for (int i = 0; i < numofIterations; i++)
 	{
 		printf("%.5lf ",currstep);
+    ofs << currstep << " ";
 		for (int m = 1; m <= 5; m++ )
 		{
 			double p2y = startPos,v2y = startV;
@@ -259,8 +260,10 @@ void Scene::timeStepReductionLoop(double stiffness,double mass,double damping,do
 			else
 				AdvanceTimeStep1(stiffness, mass, damping, L, startT+currstep, m, 0, 0, p2y, v2y);
 			printf("%.5e ",p2y-startPos);
+      ofs << p2y-startPos << " ";
 		}
 		cout << endl;
+    ofs << endl;
 		currstep/=2.0;
 	}
 	ofs.close();
