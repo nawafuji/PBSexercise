@@ -1,18 +1,18 @@
 #include "SimpleFEMDefs.h"
 #include "SimpleFEM.h"
 #include "MeshViewer.h"
+#include <cmath>
 
 // size of grid
-static const size_t GRIDSIZE = 20;
+static const size_t GRIDSIZE = 16;
 // use a graded mesh, or a regular mesh
-static const bool gradedMesh = true;
+static const bool gradedMesh = false;
 // laplace or poisson problem?
 static const bool laplaceProblem = false;
 // plot solution or error?
 static bool vizSolution = true;
 // display debug information?
-static const bool debugOut = false;
-
+static const bool debugOut = true;
 
 float eval_u(float x, float y)
 {
@@ -125,15 +125,48 @@ void SimpleFEM::ComputeRHS(const FEMMesh &mesh,  vector<float> &rhs)
 	for(size_t ie=0; ie<mesh.GetNumElements(); ie++) {
 		const FEMElementTri& elem = mesh.GetElement(ie);
 		//Task4 starts here
-		
+    int node[3];
+    Vector2 v[3]; 
+    for(int i=0; i<3; i++){
+      node[i] = elem.GetGlobalNodeForElementNode(i);
+      v[i] = mesh.GetNodePosition(node[i]); 
+    }
+
+    Vector2 e01,e12;
+    e01 = v[1]-v[0];
+    e12 = v[2]-v[1];
+    double area = abs(e01.x()*(-e12).y() - e01.y()*(-e12).x()) / 2;
+
+    double fq = eval_f((v[0].x()+v[1].x()+v[2].x())/3, (v[0].y()+v[1].y()+v[2].y())/3);
+
+    for(int i=0; i<3; i++){
+      rhs[node[i]] += fq*(1/3)*area;
+    }
 		//Task4 ends here
 	}
 }
 
 void SimpleFEM::computeError(FEMMesh &mesh,  const vector<float> &sol_num, vector<float> &verror, float& err_nrm )
 {
+
+	int nNodes = mesh.GetNumNodes();
+	std::vector<float> sol_ana(nNodes);
 	//Task 5 starts here
-	
+  for(int i=0; i<nNodes; i++){
+    Vector2 nodePos = mesh.GetNodePosition(i);
+    sol_ana[i] = eval_u(nodePos.x(), nodePos.y());
+    verror[i] = abs(sol_num[i] - sol_ana[i]);
+  }
+
+	std::vector<float> Kv(nNodes);
+  SparseSymmetricDynamicRowMatrix K = mesh.getMat();
+  K.MultVector(verror, Kv);
+  float err_sum = 0;
+
+  for(int i=0; i<nNodes; i++){
+    err_sum += verror[i]*Kv[i];
+  }
+  err_nrm = sqrt(err_sum);
 	//Task 5 ends here
 }
 
